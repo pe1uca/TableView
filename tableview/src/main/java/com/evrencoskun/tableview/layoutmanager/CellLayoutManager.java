@@ -483,7 +483,7 @@ public class CellLayoutManager extends LinearLayoutManager {
     private int getChildMaxWidth() {
         int maxCellWidth = 0;
         for (int i = 0; i < this.getChildCount(); i++) {
-            var child = this.getChildAt(i);
+            View child = this.getChildAt(i);
             if (child == null) continue;
             maxCellWidth = Math.max(child.getWidth(), maxCellWidth);
         }
@@ -493,9 +493,9 @@ public class CellLayoutManager extends LinearLayoutManager {
     private boolean setColumnWidth(int width) {
         boolean modifiedWidth = false;
         for (int i = 0; i < mColumnHeaderLayoutManager.getChildCount(); i++) {
-            var child = mColumnHeaderLayoutManager.getChildAt(i);
+            View child = mColumnHeaderLayoutManager.getChildAt(i);
             if (child == null || child.getWidth() >= width) continue;
-            var params = child.getLayoutParams();
+            ViewGroup.LayoutParams params = child.getLayoutParams();
             params.width = width;
             child.setLayoutParams(params);
             modifiedWidth = true;

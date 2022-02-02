@@ -30,6 +30,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -251,11 +252,14 @@ public class CellLayoutManager extends LinearLayoutManager {
      * Alternative method of fitWidthSize().
      * The main difference is this method works after main thread draw the ui components.
      */
-    public void fitWidthSize2(boolean scrollingLeft) {
+    public boolean fitWidthSize2(boolean scrollingLeft) {
         // The below line helps to change left & right value of the each column
         // header views
         // without using requestLayout().
-        mColumnHeaderLayoutManager.customRequestLayout();
+        int maxCellWidth = getChildMaxWidth();
+        if (maxCellWidth == 0) return true;
+        if (setColumnWidth(maxCellWidth)) return true;
+         mColumnHeaderLayoutManager.customRequestLayout();
 
         // Get the right scroll position information from Column header RecyclerView
         int columnHeaderScrollPosition = mTableView.getColumnHeaderRecyclerView().getScrolledX();
@@ -271,6 +275,7 @@ public class CellLayoutManager extends LinearLayoutManager {
         }
 
         mNeedSetLeft = false;
+        return false;
     }
 
     /**
@@ -439,10 +444,8 @@ public class CellLayoutManager extends LinearLayoutManager {
                 // for the first time to populate adapter
                 if (mTableView.getRowHeaderLayoutManager().findLastVisibleItemPosition() == position) {
 
-                    fitWidthSize2(false);
+                    mNeedFit = fitWidthSize2(false);
                     Log.e(LOG_TAG, position + " fitWidthSize populating data for the first time");
-
-                    mNeedFit = false;
                 }
             }
         }
@@ -475,6 +478,29 @@ public class CellLayoutManager extends LinearLayoutManager {
                     (xPosition);
         }
         return null;
+    }
+
+    private int getChildMaxWidth() {
+        int maxCellWidth = 0;
+        for (int i = 0; i < this.getChildCount(); i++) {
+            var child = this.getChildAt(i);
+            if (child == null) continue;
+            maxCellWidth = Math.max(child.getWidth(), maxCellWidth);
+        }
+        return maxCellWidth;
+    }
+
+    private boolean setColumnWidth(int width) {
+        boolean modifiedWidth = false;
+        for (int i = 0; i < mColumnHeaderLayoutManager.getChildCount(); i++) {
+            var child = mColumnHeaderLayoutManager.getChildAt(i);
+            if (child == null || child.getWidth() >= width) continue;
+            var params = child.getLayoutParams();
+            params.width = width;
+            child.setLayoutParams(params);
+            modifiedWidth = true;
+        }
+        return modifiedWidth;
     }
 
     public void remeasureAllChild() {

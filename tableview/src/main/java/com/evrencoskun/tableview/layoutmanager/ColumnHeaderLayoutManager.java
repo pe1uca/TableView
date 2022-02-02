@@ -95,7 +95,7 @@ public class ColumnHeaderLayoutManager extends LinearLayoutManager {
 
     public int getFirstItemLeft() {
         View firstColumnHeader = findViewByPosition(findFirstVisibleItemPosition());
-        return firstColumnHeader.getLeft();
+        return firstColumnHeader != null ? firstColumnHeader.getLeft() : 0;
     }
 
     /**
